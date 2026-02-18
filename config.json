@@ -17,3 +17,13 @@
         "output_file": "scan.ply"
     }
 }
+"scan_modes": {
+    "fast": {
+        "steps": 100,
+        "threshold": 220
+    },
+    "high_quality": {
+        "steps": 400,
+        "threshold": 180
+    }
+}
