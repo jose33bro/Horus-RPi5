@@ -7,6 +7,8 @@ class LaserCalibration:
     def __init__(self):
         self.left_laser_plane = None
         self.right_laser_plane = None
+        self.store = CalibrationStore()
+        self.left_laser_plane, self.right_laser_plane = self.store.load()
 
     def detect_laser_line(self, frame, threshold=200):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -27,8 +29,10 @@ class LaserCalibration:
         mask = self.detect_laser_line(frame)
         self.left_laser_plane = self.compute_laser_plane(mask)
         return self.left_laser_plane
+        self.store.save(self.left_laser_plane, self.right_laser_plane)
 
     def calibrate_right_laser(self, frame):
         mask = self.detect_laser_line(frame)
         self.right_laser_plane = self.compute_laser_plane(mask)
         return self.right_laser_plane
+        self.store.save(self.left_laser_plane, self.right_laser_plane)
