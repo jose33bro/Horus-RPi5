@@ -3,6 +3,10 @@ from horus.engine.camera import Camera
 from horus.engine.profile_extractor import ProfileExtractor
 from horus.engine.reconstruction import Reconstruction3D
 from horus.engine.grbl_controller import GRBLController
+from horus.utils.logger import logger
+    logger.info("Début du scan")
+    logger.info(f"Étape {step}/{steps}")
+    logger.info("Scan terminé, export PLY")
 
 class ScanPanel(wx.Panel):
     def __init__(self, parent):
