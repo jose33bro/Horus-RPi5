@@ -1,4 +1,6 @@
 import wx
+from horus.gui.camera_panel import CameraPanel
+from horus.gui.grbl_panel import GRBLPanel
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title="Horus RPi5"):
@@ -7,13 +9,21 @@ class MainWindow(wx.Frame):
         panel = wx.Panel(self)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
+        # Titre
         title_text = wx.StaticText(panel, label="Horus RPi5 - Scanner 3D Ciclop")
         font = title_text.GetFont()
         font.PointSize += 4
         font = font.Bold()
         title_text.SetFont(font)
-
         vbox.Add(title_text, 0, wx.ALL | wx.CENTER, 10)
+
+        # Panneau caméra
+        self.camera_panel = CameraPanel(panel)
+        vbox.Add(self.camera_panel, 1, wx.EXPAND | wx.ALL, 10)
+
+        # Panneau GRBL (plateau + lasers)
+        self.grbl_panel = GRBLPanel(panel)
+        vbox.Add(self.grbl_panel, 0, wx.EXPAND | wx.ALL, 10)
 
         panel.SetSizer(vbox)
         self.Centre()
