@@ -55,5 +55,6 @@ for step in range(steps):
         self.grbl.disconnect()
 
         self.reconstruction.export_ply("scan.ply")
+        self.reconstruction.export_obj("scan.obj")
 
         wx.MessageBox("Scan terminé ! Fichier : scan.ply", "OK")
