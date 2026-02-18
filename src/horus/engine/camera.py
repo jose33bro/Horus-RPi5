@@ -2,6 +2,9 @@ import cv2
 
 class Camera:
     from horus.utils.config import Config
+    from horus.utils.logger import logger
+        logger.info("Ouverture de la caméra")
+        logger.error("Impossible d'ouvrir la caméra")
 
 class Camera:
     def __init__(self):
