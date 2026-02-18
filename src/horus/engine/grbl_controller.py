@@ -41,9 +41,9 @@ class GRBLController:
         response = self.ser.readline().decode().strip()
         return response
 
-    def rotate_step(self, angle=1.8):
+    def rotate_step(self):
         """Rotation du plateau (axe A)"""
-        return self.send(f"G0 A{angle}")
+        return self.send(f"G0 A{self.step_angle}")
 
     def set_laser(self, left=False, right=False):
         """Contrôle des lasers via M3/M5 ou sorties GRBL modifiées"""
