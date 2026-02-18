@@ -1,7 +1,15 @@
 import cv2
 
 class Camera:
-    def __init__(self, index=0, width=1280, height=720):
+    from horus.utils.config import Config
+
+class Camera:
+    def __init__(self):
+        cfg = Config()
+        self.index = cfg.get("camera.index")
+        self.width = cfg.get("camera.width")
+        self.height = cfg.get("camera.height")
+
         self.index = index
         self.width = width
         self.height = height
