@@ -1,6 +1,8 @@
 import wx
 from horus.gui.camera_panel import CameraPanel
 from horus.gui.grbl_panel import GRBLPanel
+from horus.gui.scan_panel import ScanPanel
+from horus.gui.calibration_panel import CalibrationPanel
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title="Horus RPi5"):
@@ -21,9 +23,15 @@ class MainWindow(wx.Frame):
         self.camera_panel = CameraPanel(panel)
         vbox.Add(self.camera_panel, 1, wx.EXPAND | wx.ALL, 10)
 
+        self.calibration_panel = CalibrationPanel(panel)
+        vbox.Add(self.calibration_panel, 0, wx.EXPAND | wx.ALL, 10)
+
         # Panneau GRBL (plateau + lasers)
         self.grbl_panel = GRBLPanel(panel)
         vbox.Add(self.grbl_panel, 0, wx.EXPAND | wx.ALL, 10)
-
+        
+        self.scan_panel = ScanPanel(panel)
+        vbox.Add(self.scan_panel, 0, wx.EXPAND | wx.ALL, 10)
+        
         panel.SetSizer(vbox)
         self.Centre()
