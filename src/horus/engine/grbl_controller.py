@@ -2,7 +2,16 @@ import serial
 import time
 
 class GRBLController:
-    def __init__(self, port="/dev/ttyUSB0", baudrate=115200, timeout=1):
+from horus.utils.config import Config
+
+class GRBLController:
+    def __init__(self):
+        cfg = Config()
+        self.port = cfg.get("grbl.port")
+        self.baudrate = cfg.get("grbl.baudrate")
+        self.step_angle = cfg.get("grbl.step_angle")
+        self.timeout = 1
+
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
