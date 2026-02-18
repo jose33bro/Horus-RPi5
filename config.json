@@ -1,0 +1,19 @@
+{
+    "camera": {
+        "index": 0,
+        "width": 1280,
+        "height": 720
+    },
+    "laser": {
+        "threshold": 200
+    },
+    "grbl": {
+        "port": "/dev/ttyUSB0",
+        "baudrate": 115200,
+        "step_angle": 1.8
+    },
+    "scan": {
+        "steps": 200,
+        "output_file": "scan.ply"
+    }
+}
