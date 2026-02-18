@@ -3,6 +3,10 @@ import time
 
 class GRBLController:
 from horus.utils.config import Config
+from horus.utils.logger import logger
+     logger.info("Connexion GRBL")
+     logger.debug(f"Commande envoyée : {command}")
+     logger.error("Erreur GRBL")
 
 class GRBLController:
     def __init__(self):
