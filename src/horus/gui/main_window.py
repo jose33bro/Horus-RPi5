@@ -1,4 +1,5 @@
 import wx
+from horus.gui.settings_panel import SettingsPanel
 from horus.gui.camera_panel import CameraPanel
 from horus.gui.grbl_panel import GRBLPanel
 from horus.gui.scan_panel import ScanPanel
@@ -18,6 +19,9 @@ class MainWindow(wx.Frame):
         font = font.Bold()
         title_text.SetFont(font)
         vbox.Add(title_text, 0, wx.ALL | wx.CENTER, 10)
+        
+        self.settings_panel = SettingsPanel(panel)
+        vbox.Add(self.settings_panel, 0, wx.EXPAND | wx.ALL, 10)
 
         # Panneau caméra
         self.camera_panel = CameraPanel(panel)
