@@ -1,0 +1,12 @@
+[Unit]
+Description=Horus RPi5 Scanner 3D
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -m horus.main
+WorkingDirectory=/home/pi/Horus-RPi5
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
