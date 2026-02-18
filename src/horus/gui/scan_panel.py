@@ -30,7 +30,16 @@ class ScanPanel(wx.Panel):
 
         angle = 0
 
-        for step in range(200):  # 200 pas = 360° si 1.8° par pas
+from horus.utils.config import Config
+
+cfg = Config()
+steps = cfg.get("scan.steps")
+step_angle = cfg.get("grbl.step_angle")
+
+for step in range(steps):
+    ...
+    angle += step_angle
+ 
             frame = self.camera.read()
             profile = self.extractor.extract_profile(frame)
             self.reconstruction.add_profile(profile, angle)
