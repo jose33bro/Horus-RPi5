@@ -34,6 +34,8 @@ class Reconstruction3D:
             f.write("property float y\n")
             f.write("property float z\n")
             f.write("end_header\n")
-
+            
+    def export_obj(self, filename="scan.obj"): 
+        with open(filename, "w") as f:
             for p in self.points:
                 f.write(f"{p[0]} {p[1]} {p[2]}\n")
