@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from horus.utils.calibration_store import CalibrationStore
+
 
 class LaserCalibration:
     def __init__(self):
