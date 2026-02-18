@@ -2,6 +2,7 @@ import wx
 import cv2
 from horus.engine.camera import Camera
 from horus.calibration.laser_calibration import LaserCalibration
+from horus.utils.calibration_store import CalibrationStore
 
 class CalibrationPanel(wx.Panel):
     def __init__(self, parent):
@@ -43,11 +44,13 @@ class CalibrationPanel(wx.Panel):
     def on_left(self, event):
         frame = self.capture_frame()
         plane = self.calib.calibrate_left_laser(frame)
+        wx.MessageBox("Calibration gauche enregistrée", "OK")
         self.show_image(frame)
         wx.MessageBox(f"Laser gauche calibré : {plane}", "OK")
 
     def on_right(self, event):
         frame = self.capture_frame()
         plane = self.calib.calibrate_right_laser(frame)
+        wx.MessageBox("Calibration droit enregistrée", "OK")
         self.show_image(frame)
         wx.MessageBox(f"Laser droit calibré : {plane}", "OK")
