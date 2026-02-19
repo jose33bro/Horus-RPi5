@@ -1,5 +1,4 @@
 import wx
-import cv2
 from horus.engine.ai_laser import LaserAI
 from horus.engine.ai_pointcloud import PointCloudAI
 from horus.engine.ai_calibration import CalibrationAI
@@ -13,7 +12,6 @@ class AiPanel(wx.Panel):
         self.calib_ai = CalibrationAI()
 
         notebook = wx.Notebook(self)
-
         notebook.AddPage(self.build_laser(notebook), "Laser IA")
         notebook.AddPage(self.build_calibration(notebook), "Calibration IA")
         notebook.AddPage(self.build_pointcloud(notebook), "Nuage IA")
@@ -39,7 +37,7 @@ class AiPanel(wx.Panel):
         return panel
 
     def on_laser(self, evt):
-        self.laser_output.SetValue("Laser IA prêt (modèle TFLite ou OpenCV).")
+        self.laser_output.SetValue("Laser IA prêt.")
 
     # CALIBRATION IA
     def build_calibration(self, parent):
@@ -76,4 +74,3 @@ class AiPanel(wx.Panel):
 
     def on_pointcloud(self, evt):
         self.pc_output.SetValue("Nettoyage IA prêt.")
-
