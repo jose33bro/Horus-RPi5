@@ -1,14 +1,19 @@
 import wx
-from horus.engine import ai
+import cv2
+from horus.engine.ai_laser import LaserAI
+from horus.engine.ai_pointcloud import PointCloudAI
+from horus.engine.ai_calibration import CalibrationAI
 
 class AiPanel(wx.Panel):
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.laser_ai = LaserAI()
+        self.pc_ai = PointCloudAI()
+        self.calib_ai = CalibrationAI()
+
         notebook = wx.Notebook(self)
 
-        notebook.AddPage(self.build_assistant(notebook), "Assistant IA")
-        notebook.AddPage(self.build_camera(notebook), "Caméra IA")
         notebook.AddPage(self.build_laser(notebook), "Laser IA")
         notebook.AddPage(self.build_calibration(notebook), "Calibration IA")
         notebook.AddPage(self.build_pointcloud(notebook), "Nuage IA")
@@ -18,58 +23,57 @@ class AiPanel(wx.Panel):
         sizer.Add(notebook, 1, wx.EXPAND | wx.ALL, 5)
         self.SetSizer(sizer)
 
-    # Onglet 1 — Assistant IA
-    def build_assistant(self, parent):
-        panel = wx.Panel(parent)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-
-        self.assistant_output = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY)
-        self.assistant_input = wx.TextCtrl(panel)
-
-        btn = wx.Button(panel, label="Envoyer")
-        btn.Bind(wx.EVT_BUTTON, self.on_assistant)
-
-        sizer.Add(wx.StaticText(panel, label="Assistant IA"), 0, wx.ALL, 5)
-        sizer.Add(self.assistant_output, 1, wx.EXPAND | wx.ALL, 5)
-        sizer.Add(self.assistant_input, 0, wx.EXPAND | wx.ALL, 5)
-        sizer.Add(btn, 0, wx.ALL, 5)
-
-        panel.SetSizer(sizer)
-        return panel
-
-    def on_assistant(self, evt):
-        question = self.assistant_input.GetValue()
-        result = ai.ai_assistant({"system": "OK"}, question)
-        self.assistant_output.SetValue(str(result))
-
-    # Onglet 2 — Analyse caméra
-    def build_camera(self, parent):
-        panel = wx.Panel(parent)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticText(panel, label="Analyse IA de la caméra"), 0, wx.ALL, 5)
-        panel.SetSizer(sizer)
-        return panel
-
-    # Onglet 3 — Laser IA
+    # LASER IA
     def build_laser(self, parent):
         panel = wx.Panel(parent)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticText(panel, label="Détection IA du laser"), 0, wx.ALL, 5)
+
+        btn = wx.Button(panel, label="Analyser laser")
+        btn.Bind(wx.EVT_BUTTON, self.on_laser)
+
+        self.laser_output = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY)
+
+        sizer.Add(btn, 0, wx.ALL, 5)
+        sizer.Add(self.laser_output, 1, wx.EXPAND | wx.ALL, 5)
         panel.SetSizer(sizer)
         return panel
 
-    # Onglet 4 — Calibration IA
+    def on_laser(self, evt):
+        self.laser_output.SetValue("Laser IA prêt (modèle TFLite ou OpenCV).")
+
+    # CALIBRATION IA
     def build_calibration(self, parent):
         panel = wx.Panel(parent)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticText(panel, label="Calibration automatique IA"), 0, wx.ALL, 5)
+
+        btn = wx.Button(panel, label="Calibration automatique")
+        btn.Bind(wx.EVT_BUTTON, self.on_calibration)
+
+        self.calib_output = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY)
+
+        sizer.Add(btn, 0, wx.ALL, 5)
+        sizer.Add(self.calib_output, 1, wx.EXPAND | wx.ALL, 5)
         panel.SetSizer(sizer)
         return panel
 
-    # Onglet 5 — Nuage IA
+    def on_calibration(self, evt):
+        self.calib_output.SetValue("Calibration IA prête.")
+
+    # NUAGE IA
     def build_pointcloud(self, parent):
         panel = wx.Panel(parent)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticText(panel, label="Nettoyage IA du nuage de points"), 0, wx.ALL, 5)
+
+        btn = wx.Button(panel, label="Nettoyer nuage de points")
+        btn.Bind(wx.EVT_BUTTON, self.on_pointcloud)
+
+        self.pc_output = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY)
+
+        sizer.Add(btn, 0, wx.ALL, 5)
+        sizer.Add(self.pc_output, 1, wx.EXPAND | wx.ALL, 5)
         panel.SetSizer(sizer)
         return panel
+
+    def on_pointcloud(self, evt):
+        self.pc_output.SetValue("Nettoyage IA prêt.")
+
