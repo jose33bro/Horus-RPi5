@@ -13,7 +13,6 @@ class CalibrationPanel(wx.Panel):
 
         vbox = wx.BoxSizer(wx.VERTICAL)
 
-        # Boutons
         btn_left = wx.Button(self, label="Calibrer laser gauche")
         btn_right = wx.Button(self, label="Calibrer laser droit")
 
@@ -23,7 +22,6 @@ class CalibrationPanel(wx.Panel):
         vbox.Add(btn_left, 0, wx.ALL, 5)
         vbox.Add(btn_right, 0, wx.ALL, 5)
 
-        # Zone d'affichage
         self.bitmap = wx.StaticBitmap(self)
         vbox.Add(self.bitmap, 1, wx.EXPAND | wx.ALL, 10)
 
@@ -36,6 +34,8 @@ class CalibrationPanel(wx.Panel):
         return frame
 
     def show_image(self, frame):
+        if frame is None:
+            return
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w = rgb.shape[:2]
         img = wx.Image(w, h, rgb.tobytes())
@@ -43,14 +43,20 @@ class CalibrationPanel(wx.Panel):
 
     def on_left(self, event):
         frame = self.capture_frame()
+        if frame is None:
+            wx.MessageBox("Erreur : impossible de capturer une image", "Erreur")
+            return
         plane = self.calib.calibrate_left_laser(frame)
-        wx.MessageBox("Calibration gauche enregistrée", "OK")
+        CalibrationStore.save("left_laser", plane)
         self.show_image(frame)
         wx.MessageBox(f"Laser gauche calibré : {plane}", "OK")
 
     def on_right(self, event):
         frame = self.capture_frame()
+        if frame is None:
+            wx.MessageBox("Erreur : impossible de capturer une image", "Erreur")
+            return
         plane = self.calib.calibrate_right_laser(frame)
-        wx.MessageBox("Calibration droit enregistrée", "OK")
+        CalibrationStore.save("right_laser", plane)
         self.show_image(frame)
         wx.MessageBox(f"Laser droit calibré : {plane}", "OK")
