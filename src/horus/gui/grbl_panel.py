@@ -6,10 +6,12 @@ class GRBLPanel(wx.Panel):
         super().__init__(parent)
 
         self.grbl = GRBLController()
+        self.connected = False
+        self.busy = False
 
         vbox = wx.BoxSizer(wx.VERTICAL)
 
-        # Boutons connexion
+        # Connexion
         btn_connect = wx.Button(self, label="Connecter GRBL")
         btn_disconnect = wx.Button(self, label="Déconnecter")
 
@@ -19,42 +21,63 @@ class GRBLPanel(wx.Panel):
         vbox.Add(btn_connect, 0, wx.ALL, 5)
         vbox.Add(btn_disconnect, 0, wx.ALL, 5)
 
-        # Rotation
-        btn_rotate = wx.Button(self, label="Rotation +1.8°")
-        btn_rotate.Bind(wx.EVT_BUTTON, self.on_rotate)
-        vbox.Add(btn_rotate, 0, wx.ALL, 5)
+        # Champ G-code manuel
+        hbox_cmd = wx.BoxSizer(wx.HORIZONTAL)
+        self.cmd_input = wx.TextCtrl(self)
+        btn_send = wx.Button(self, label="Envoyer G-code")
+        btn_send.Bind(wx.EVT_BUTTON, self.on_send_gcode)
 
-        # Lasers
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        btn_laser_left = wx.Button(self, label="Laser gauche")
-        btn_laser_right = wx.Button(self, label="Laser droit")
-        btn_laser_off = wx.Button(self, label="Lasers OFF")
+        hbox_cmd.Add(self.cmd_input, 1, wx.ALL, 5)
+        hbox_cmd.Add(btn_send, 0, wx.ALL, 5)
 
-        btn_laser_left.Bind(wx.EVT_BUTTON, lambda evt: self.on_laser(left=True))
-        btn_laser_right.Bind(wx.EVT_BUTTON, lambda evt: self.on_laser(right=True))
-        btn_laser_off.Bind(wx.EVT_BUTTON, lambda evt: self.on_laser())
+        vbox.Add(hbox_cmd, 0, wx.EXPAND)
 
-        hbox.Add(btn_laser_left, 0, wx.ALL, 5)
-        hbox.Add(btn_laser_right, 0, wx.ALL, 5)
-        hbox.Add(btn_laser_off, 0, wx.ALL, 5)
+        # Boutons utiles
+        btn_unlock = wx.Button(self, label="Unlock ($X)")
+        btn_reset = wx.Button(self, label="Reset (CTRL-X)")
+        btn_status = wx.Button(self, label="Lire statut ($G)")
 
-        vbox.Add(hbox, 0, wx.CENTER)
+        btn_unlock.Bind(wx.EVT_BUTTON, lambda evt: self.send("$X"))
+        btn_reset.Bind(wx.EVT_BUTTON, lambda evt: self.send("\x18"))
+        btn_status.Bind(wx.EVT_BUTTON, lambda evt: self.send("$G"))
+
+        for b in [btn_unlock, btn_reset, btn_status]:
+            vbox.Add(b, 0, wx.ALL, 5)
+
+        # Zone de log GRBL
+        self.log = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_READONLY)
+        vbox.Add(self.log, 1, wx.EXPAND | wx.ALL, 5)
 
         self.SetSizer(vbox)
 
     def on_connect(self, event):
+        if self.connected:
+            return
         try:
             self.grbl.connect()
-            wx.MessageBox("GRBL connecté", "OK")
+            self.connected = True
+            self.log.AppendText("GRBL connecté\n")
         except Exception as e:
-            wx.MessageBox(str(e), "Erreur", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox(str(e), "Erreur GRBL")
 
     def on_disconnect(self, event):
+        if not self.connected:
+            return
         self.grbl.disconnect()
-        wx.MessageBox("Déconnecté", "OK")
+        self.connected = False
+        self.log.AppendText("GRBL déconnecté\n")
 
-    def on_rotate(self, event):
-        self.grbl.rotate_step()
+    def send(self, cmd):
+        if not self.connected:
+            wx.MessageBox("GRBL non connecté", "Erreur")
+            return
+        try:
+            resp = self.grbl.send(cmd)
+            self.log.AppendText(f"> {cmd}\n{resp}\n")
+        except Exception as e:
+            wx.MessageBox(str(e), "Erreur GRBL")
 
-    def on_laser(self, left=False, right=False):
-        self.grbl.set_laser(left=left, right=right)
+    def on_send_gcode(self, event):
+        cmd = self.cmd_input.GetValue().strip()
+        if cmd:
+            self.send(cmd)
