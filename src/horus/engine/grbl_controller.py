@@ -1,32 +1,32 @@
 import serial
 import time
-
-class GRBLController:
 from horus.utils.config import Config
 from horus.utils.logger import logger
-     logger.info("Connexion GRBL")
-     logger.debug(f"Commande envoyée : {command}")
-     logger.error("Erreur GRBL")
 
 class GRBLController:
     def __init__(self):
         cfg = Config()
-        self.port = cfg.get("grbl.port")
-        self.baudrate = cfg.get("grbl.baudrate")
-        self.step_angle = cfg.get("grbl.step_angle")
-        self.timeout = 1
 
-        self.port = port
-        self.baudrate = baudrate
-        self.timeout = timeout
+        self.port = cfg.get("grbl.port", "/dev/ttyUSB0")
+        self.baudrate = cfg.get("grbl.baudrate", 115200)
+        self.step_angle = cfg.get("grbl.step_angle", 1.8)
+        self.timeout = cfg.get("grbl.timeout", 1)
+
         self.ser = None
 
     def connect(self):
+        logger.info(f"Connexion à GRBL sur {self.port} ({self.baudrate} bauds)")
+
         try:
             self.ser = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
-            time.sleep(2)  # Laisser GRBL démarrer
+            time.sleep(2)  # GRBL démarre
             self.flush()
+
+            # Déverrouiller GRBL si nécessaire
+            self.send("$X")
+
         except Exception as e:
+            logger.error(f"Erreur connexion GRBL : {e}")
             raise RuntimeError(f"Impossible de se connecter à GRBL : {e}")
 
     def flush(self):
@@ -38,29 +38,42 @@ class GRBLController:
         if not self.ser:
             raise RuntimeError("GRBL n'est pas connecté")
 
+        logger.debug(f"Commande envoyée : {command}")
+
         cmd = (command + "\n").encode()
         self.ser.write(cmd)
         self.ser.flush()
 
         response = self.ser.readline().decode().strip()
+        logger.debug(f"Réponse GRBL : {response}")
+
+        if response.startswith("error"):
+            logger.error(f"Erreur GRBL : {response}")
+            raise RuntimeError(f"Erreur GRBL : {response}")
+
         return response
 
     def rotate_step(self):
         """Rotation du plateau (axe A)"""
         return self.send(f"G0 A{self.step_angle}")
 
+    def rotate_relative(self, delta_angle):
+        """Rotation relative en degrés"""
+        return self.send(f"G91\nG0 A{delta_angle}\nG90")
+
     def set_laser(self, left=False, right=False):
-        """Contrôle des lasers via M3/M5 ou sorties GRBL modifiées"""
+        """Contrôle des lasers via M3/M5"""
         if left and right:
-            return self.send("M3 S255")  # les deux lasers
+            return self.send("M3 S255")
         elif left:
-            return self.send("M3 S128")  # laser gauche
+            return self.send("M3 S128")
         elif right:
-            return self.send("M3 S64")   # laser droit
+            return self.send("M3 S64")
         else:
-            return self.send("M5")       # lasers off
+            return self.send("M5")
 
     def disconnect(self):
         if self.ser:
+            logger.info("Déconnexion GRBL")
             self.ser.close()
             self.ser = None
