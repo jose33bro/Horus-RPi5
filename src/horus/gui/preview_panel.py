@@ -2,9 +2,7 @@ import wx
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from horus.engine.reconstruction import Reconstruction3D
 
 class PreviewPanel(wx.Panel):
     def __init__(self, parent):
@@ -22,11 +20,32 @@ class PreviewPanel(wx.Panel):
 
         self.SetSizer(vbox)
 
-    def on_preview(self, event):
-        recon = Reconstruction3D()
-        recon.load_from_ply("scan.ply")  # à implémenter si tu veux
+    def load_ply(self, filename):
+        """Charge un fichier PLY simple (x y z)"""
+        points = []
+        with open(filename, "r") as f:
+            header = True
+            for line in f:
+                if header:
+                    if line.strip() == "end_header":
+                        header = False
+                    continue
+                parts = line.strip().split()
+                if len(parts) >= 3:
+                    x, y, z = map(float, parts[:3])
+                    points.append([x, y, z])
+        return np.array(points)
 
-        points = np.array(recon.points)
+    def on_preview(self, event):
+        try:
+            points = self.load_ply("scan.ply")
+        except Exception as e:
+            wx.MessageBox(f"Impossible de charger scan.ply : {e}", "Erreur")
+            return
+
+        if points.size == 0:
+            wx.MessageBox("Le fichier scan.ply est vide.", "Erreur")
+            return
 
         fig = plt.figure(figsize=(6, 6))
         ax = fig.add_subplot(111, projection="3d")
