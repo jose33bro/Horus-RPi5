@@ -8,24 +8,36 @@ class CalibrationAI:
 
         h, w = frame.shape[:2]
 
-        # Détection du plateau (simple)
+        # Prétraitement
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 80, 160)
+        gray = cv2.equalizeHist(gray)              # normalisation lumière
+        blur = cv2.GaussianBlur(gray, (9, 9), 2)   # flou pour stabiliser Hough
+
+        # Détection du plateau
         circles = cv2.HoughCircles(
-            edges, cv2.HOUGH_GRADIENT, 1, 200,
-            param1=50, param2=30, minRadius=50, maxRadius=300
+            blur,
+            cv2.HOUGH_GRADIENT,
+            dp=1.2,
+            minDist=200,
+            param1=80,
+            param2=30,
+            minRadius=50,
+            maxRadius=350
         )
 
+        # Valeurs par défaut
         cx = w / 2
         cy = h / 2
+        confidence = 0.60
 
         if circles is not None:
             circles = np.uint16(np.around(circles))
             cx, cy, r = circles[0][0]
+            confidence = 0.90
 
         return {
             "cx": float(cx),
             "cy": float(cy),
-            "focal": float(max(w, h)),
-            "confidence": 0.85 if circles is not None else 0.60
+            "focal": float(max(w, h)),   # placeholder acceptable
+            "confidence": confidence
         }
