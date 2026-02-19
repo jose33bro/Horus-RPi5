@@ -1,4 +1,3 @@
-import numpy as np
 import math
 
 class Reconstruction3D:
@@ -10,7 +9,7 @@ class Reconstruction3D:
     def add_profile(self, profile_points, angle_deg):
         """
         Convertit un profil 2D en points 3D.
-        angle_deg = angle du plateau au moment de la capture
+        angle_deg = angle du plateau au moment de la capture.
         """
         angle = math.radians(angle_deg)
 
@@ -26,6 +25,9 @@ class Reconstruction3D:
             self.points.append((X, Y, Z))
 
     def export_ply(self, filename="scan.ply"):
+        """
+        Exporte les points au format PLY.
+        """
         with open(filename, "w") as f:
             f.write("ply\n")
             f.write("format ascii 1.0\n")
@@ -34,8 +36,14 @@ class Reconstruction3D:
             f.write("property float y\n")
             f.write("property float z\n")
             f.write("end_header\n")
-            
-    def export_obj(self, filename="scan.obj"): 
-        with open(filename, "w") as f:
+
             for p in self.points:
                 f.write(f"{p[0]} {p[1]} {p[2]}\n")
+
+    def export_obj(self, filename="scan.obj"):
+        """
+        Exporte les points au format OBJ.
+        """
+        with open(filename, "w") as f:
+            for p in self.points:
+                f.write(f"v {p[0]} {p[1]} {p[2]}\n")
