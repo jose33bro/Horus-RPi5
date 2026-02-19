@@ -27,25 +27,27 @@ class RotationPanel(wx.Panel):
         btn_laser_right.Bind(wx.EVT_BUTTON, lambda evt: self.set_laser(right=True))
         btn_laser_off.Bind(wx.EVT_BUTTON, lambda evt: self.set_laser())
 
-        sizer.Add(btn_left, 0, wx.ALL, 5)
-        sizer.Add(btn_right, 0, wx.ALL, 5)
-        sizer.Add(btn_home, 0, wx.ALL, 5)
-        sizer.Add(btn_laser_left, 0, wx.ALL, 5)
-        sizer.Add(btn_laser_right, 0, wx.ALL, 5)
-        sizer.Add(btn_laser_off, 0, wx.ALL, 5)
+        # Ajout au sizer
+        for btn in [
+            btn_left, btn_right, btn_home,
+            btn_laser_left, btn_laser_right, btn_laser_off
+        ]:
+            sizer.Add(btn, 0, wx.ALL, 5)
 
         self.SetSizer(sizer)
 
-    def rotate(self, angle):
+    def rotate(self, delta_angle):
+        """Rotation relative du plateau."""
         try:
             self.grbl.connect()
-            self.grbl.send(f"G0 X{angle}")
+            self.grbl.rotate_relative(delta_angle)
         except Exception as e:
             wx.MessageBox(str(e), "Erreur GRBL")
         finally:
             self.grbl.disconnect()
 
     def home(self):
+        """Retour à X0."""
         try:
             self.grbl.connect()
             self.grbl.send("G0 X0")
@@ -55,6 +57,7 @@ class RotationPanel(wx.Panel):
             self.grbl.disconnect()
 
     def set_laser(self, left=False, right=False):
+        """Contrôle des lasers."""
         try:
             self.grbl.connect()
             self.grbl.set_laser(left=left, right=right)
