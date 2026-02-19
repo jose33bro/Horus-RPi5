@@ -24,8 +24,8 @@ class ScanEngine:
 
         # Configuration
         cfg = Config()
-        self.steps = cfg.get("scan.steps")
-        self.step_angle = cfg.get("grbl.step_angle")
+        self.steps = cfg.get("scan.steps", 200)
+        self.step_angle = cfg.get("grbl.step_angle", 1.8)
 
     def run_scan(self):
         logger.info("Initialisation du scan")
@@ -33,6 +33,9 @@ class ScanEngine:
         # Connexion matériel
         self.grbl.connect()
         self.camera.open()
+
+        # Allumer laser gauche
+        self.grbl.set_laser(left=True)
 
         angle = 0
 
@@ -49,7 +52,7 @@ class ScanEngine:
                 logger.error("Frame caméra invalide")
                 continue
 
-            # IA Laser
+            # IA Laser → masque binaire
             mask = self.laser_ai.detect(frame)
 
             # Extraction profil
@@ -60,12 +63,13 @@ class ScanEngine:
 
             # Rotation plateau
             angle += self.step_angle
-            self.grbl.rotate_step()
+            self.grbl.rotate_relative(self.step_angle)
 
-            time.sleep(0.1)
+            time.sleep(0.15)  # stabilisation
 
         # Fin du scan
         self.camera.close()
+        self.grbl.set_laser(False)
         self.grbl.disconnect()
 
         # Nettoyage IA du nuage de points
@@ -73,7 +77,10 @@ class ScanEngine:
         points = self.pc_ai.clean(points)
         points = self.pc_ai.interpolate(points)
 
+        # Remplacer les points par ceux nettoyés
+        self.reconstruction.points = points.tolist()
+
         # Export
-        self.reconstruction.export_ply("scan.ply", points)
+        self.reconstruction.export_ply("scan.ply")
 
         logger.info("Scan terminé, fichier exporté : scan.ply")
