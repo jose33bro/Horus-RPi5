@@ -6,6 +6,8 @@ class RotationPanel(wx.Panel):
         super().__init__(parent)
 
         self.grbl = GRBLController()
+        self.connected = False
+        self.busy = False
 
         sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -27,41 +29,60 @@ class RotationPanel(wx.Panel):
         btn_laser_right.Bind(wx.EVT_BUTTON, lambda evt: self.set_laser(right=True))
         btn_laser_off.Bind(wx.EVT_BUTTON, lambda evt: self.set_laser())
 
-        # Ajout au sizer
-        for btn in [
+        # Label d'état
+        self.status = wx.StaticText(self, label="GRBL : déconnecté")
+
+        for item in [
             btn_left, btn_right, btn_home,
-            btn_laser_left, btn_laser_right, btn_laser_off
+            btn_laser_left, btn_laser_right, btn_laser_off,
+            self.status
         ]:
-            sizer.Add(btn, 0, wx.ALL, 5)
+            sizer.Add(item, 0, wx.ALL, 5)
 
         self.SetSizer(sizer)
 
-    def rotate(self, delta_angle):
-        """Rotation relative du plateau."""
+        # Connexion persistante
+        self.connect()
+
+    def connect(self):
+        if self.connected:
+            return
         try:
             self.grbl.connect()
+            self.connected = True
+            self.status.SetLabel("GRBL : connecté")
+        except Exception as e:
+            wx.MessageBox(str(e), "Erreur GRBL")
+
+    def rotate(self, delta_angle):
+        if not self.connected or self.busy:
+            return
+
+        self.busy = True
+        try:
             self.grbl.rotate_relative(delta_angle)
         except Exception as e:
             wx.MessageBox(str(e), "Erreur GRBL")
         finally:
-            self.grbl.disconnect()
+            self.busy = False
 
     def home(self):
-        """Retour à X0."""
+        if not self.connected or self.busy:
+            return
+
+        self.busy = True
         try:
-            self.grbl.connect()
             self.grbl.send("G0 X0")
         except Exception as e:
             wx.MessageBox(str(e), "Erreur GRBL")
         finally:
-            self.grbl.disconnect()
+            self.busy = False
 
     def set_laser(self, left=False, right=False):
-        """Contrôle des lasers."""
+        if not self.connected or self.busy:
+            return
+
         try:
-            self.grbl.connect()
             self.grbl.set_laser(left=left, right=right)
         except Exception as e:
             wx.MessageBox(str(e), "Erreur GRBL")
-        finally:
-            self.grbl.disconnect()
