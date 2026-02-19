@@ -14,13 +14,15 @@ class ProfileExtractor:
         # Seuillage pour isoler le laser
         _, mask = cv2.threshold(gray, self.threshold, 255, cv2.THRESH_BINARY)
 
-        # Trouver les points lumineux
         points = cv2.findNonZero(mask)
-
         if points is None:
             return []
 
-        # Convertir en liste de tuples
-        pts = [(int(p[0][0]), int(p[0][1])) for p in points]
+        # Option : filtrer pour garder un point par ligne (plus lumineux)
+        profile = {}
+        for p in points:
+            x, y = int(p[0][0]), int(p[0][1])
+            if y not in profile or x < profile[y][0]:
+                profile[y] = (x, y)
 
-        return pts
+        return list(profile.values())
