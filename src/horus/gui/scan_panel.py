@@ -1,21 +1,12 @@
 import wx
-from horus.engine.camera import Camera
-from horus.engine.profile_extractor import ProfileExtractor
-from horus.engine.reconstruction import Reconstruction3D
-from horus.engine.grbl_controller import GRBLController
+from horus.engine.scan import ScanEngine
 from horus.utils.logger import logger
-    logger.info("Début du scan")
-    logger.info(f"Étape {step}/{steps}")
-    logger.info("Scan terminé, export PLY")
 
 class ScanPanel(wx.Panel):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.camera = Camera()
-        self.extractor = ProfileExtractor()
-        self.reconstruction = Reconstruction3D()
-        self.grbl = GRBLController()
+        self.scan_engine = ScanEngine()
 
         vbox = wx.BoxSizer(wx.VERTICAL)
 
@@ -28,33 +19,9 @@ class ScanPanel(wx.Panel):
 
     def on_scan(self, event):
         wx.MessageBox("Début du scan", "Info")
+        logger.info("Début du scan")
 
-        self.grbl.connect()
-        self.camera.open()
+        self.scan_engine.run_scan()
 
-        angle = 0
-
-from horus.utils.config import Config
-
-cfg = Config()
-steps = cfg.get("scan.steps")
-step_angle = cfg.get("grbl.step_angle")
-
-for step in range(steps):
-    ...
-    angle += step_angle
- 
-            frame = self.camera.read()
-            profile = self.extractor.extract_profile(frame)
-            self.reconstruction.add_profile(profile, angle)
-
-            angle += 1.8
-            self.grbl.rotate_step()
-
-        self.camera.close()
-        self.grbl.disconnect()
-
-        self.reconstruction.export_ply("scan.ply")
-        self.reconstruction.export_obj("scan.obj")
-
-        wx.MessageBox("Scan terminé ! Fichier : scan.ply", "OK")
+        wx.MessageBox("Scan terminé ! Fichier : scan.ply", "Info")
+        logger.info("Scan terminé")
