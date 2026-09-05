@@ -5,3 +5,11 @@ opencv-python
 pyserial
 wxPython
 Pillow
+gpiozero
+# tflite-runtime : requis uniquement si laser.model_path est configuré dans
+# config.json (détection laser par IA). Sans ce paquet, LaserAI utilise
+# automatiquement le mode de secours HSV (OpenCV).
+# Non publié pour toutes les plateformes sur PyPI ; sur Raspberry Pi OS,
+# installer depuis https://github.com/google-coral/pycoral (ou tflite-support)
+# ou décommenter la ligne ci-dessous si un wheel compatible est disponible.
+# tflite-runtime

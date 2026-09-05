@@ -76,5 +76,6 @@ class ScanPanel(wx.Panel):
 
     def on_stop(self, event):
         self.scanning = False
+        self.scan_engine.stop()
         self.btn_stop.Disable()
         self.log.AppendText("Arrêt demandé...\n")
