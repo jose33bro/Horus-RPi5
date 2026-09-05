@@ -77,11 +77,12 @@ class CalibrationPanel(wx.Panel):
 
             if side == "left":
                 plane, mask = self.calib.calibrate_left_laser(frame)
-                self.store.save(plane, None)
             else:
                 plane, mask = self.calib.calibrate_right_laser(frame)
-                self.store.save(None, plane)
 
+            # La persistance (sans écraser le côté opposé) est gérée par
+            # LaserCalibration.calibrate_*_laser(), qui sauvegarde les deux
+            # plans à chaque calibration.
             self.show_overlay(frame, mask)
             wx.MessageBox(f"Laser {side} calibré : {plane}", "OK")
 

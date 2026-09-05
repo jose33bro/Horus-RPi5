@@ -12,6 +12,7 @@ setup(
         "opencv-python",
         "pyserial",
         "wxPython",
-        "Pillow"
+        "Pillow",
+        "gpiozero"
     ],
 )

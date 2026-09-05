@@ -10,14 +10,20 @@ class CalibrationStore:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         self.path = os.path.join(base_dir, filename)
 
+        self.left_plane = None
+        self.right_plane = None
+
         # Créer le fichier si nécessaire
         if not os.path.exists(self.path):
             logger.warning(f"Fichier calibration absent, création : {self.path}")
             self.save(None, None)
+        else:
+            self.left_plane, self.right_plane = self.load()
 
     def save(self, left_plane, right_plane):
         """
-        Sauvegarde les plans laser dans un fichier JSON.
+        Sauvegarde les plans laser dans un fichier JSON et met à jour
+        les attributs left_plane/right_plane exposés par le store.
         """
         data = {
             "left_plane": list(left_plane) if left_plane else None,
@@ -30,6 +36,9 @@ class CalibrationStore:
             logger.info(f"Calibration sauvegardée : {self.path}")
         except Exception as e:
             logger.error(f"Erreur sauvegarde calibration : {e}")
+
+        self.left_plane = left_plane
+        self.right_plane = right_plane
 
     def load(self):
         """

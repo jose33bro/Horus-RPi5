@@ -2,10 +2,27 @@
     "camera": {
         "index": 0,
         "width": 1280,
-        "height": 720
+        "height": 720,
+        "exposure": null,
+        "gain": null,
+        "white_balance": null,
+        "warmup_frames": 5,
+        "background_subtraction": false
     },
     "laser": {
-        "threshold": 200
+        "threshold": 200,
+        "mode": "hsv",
+        "model_path": "models/laser.tflite",
+        "hsv_ranges": [
+            [[0, 120, 120], [10, 255, 255]],
+            [[170, 120, 120], [180, 255, 255]]
+        ],
+        "gpio": {
+            "enabled": false,
+            "left_pin": 17,
+            "right_pin": 27,
+            "active_high": true
+        }
     },
     "grbl": {
         "port": "/dev/ttyUSB0",
